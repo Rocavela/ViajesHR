@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Text to Speech y Traducción</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        #text-container p {
+            cursor: pointer;
+        }
+        .translation {
+            color: gray;
+            font-style: italic;
+        }
+        #controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #play-all-button, #stop-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <button id="play-all-button">Play All</button>
+        <button id="stop-button">Stop</button>
+    </div>
+    
+    <div id="text-container">
+        <p><strong>Mon dernier voyage a été une aventure extraordinaire au Guatemala.</strong></p>
+        <p class="translation">Mi último viaje fue una aventura extraordinaria en Guatemala.</p>
+        <p><strong>J'ai escaladé les volcans Fuego et Acatenango pendant deux jours et une nuit.</strong></p>
+        <p class="translation">Escalé los volcanes Fuego y Acatenango durante dos días y una noche.</p>
+        <p><strong>C'était une randonnée intense de 19 heures, couvrant près de vingt kilomètres.</strong></p>
+        <p class="translation">Fue una caminata intensa de 19 horas, cubriendo casi veinte kilómetros.</p>
+        <p><strong>Nous avons commencé avec beaucoup d'eau, mais le poids était si lourd que j'ai dû en donner à d'autres randonneurs.</strong></p>
+        <p class="translation">Comenzamos con mucha agua, pero el peso era tan pesado que tuve que darla a otros excursionistas.</p>
+        <p><strong>J'ai rencontré de nombreux étrangers pendant l'ascension.</strong></p>
+        <p class="translation">Conocí a muchos extranjeros durante la ascensión.</p>
+        <p><strong>L'expérience était à couper le souffle : nous avons vu le volcan Fuego en activité, observant ses explosions à seulement quelques mètres de distance.</strong></p>
+        <p class="translation">La experiencia fue impresionante: vimos el volcán Fuego en actividad, observando sus explosiones a solo unos metros de distancia.</p>
+        <p><strong>Arrivés au sommet, nous étions au-dessus des nuages.</strong></p>
+        <p class="translation">Al llegar a la cima, estábamos por encima de las nubes.</p>
+        <p><strong>Nous avons campé là-haut, bravant le froid intense de la nuit.</strong></p>
+        <p class="translation">Acampamos allí arriba, desafiando el intenso frío de la noche.</p>
+        <p><strong>Le lever et le coucher du soleil vus depuis le sommet étaient spectaculaires, un spectacle que je n'oublierai jamais.</strong></p>
+        <p class="translation">El amanecer y el atardecer vistos desde la cima fueron espectaculares, un espectáculo que nunca olvidaré.</p>
+        <p><strong>Le lendemain matin, nous avons gravi le sommet du volcan Acatenango.</strong></p>
+        <p class="translation">A la mañana siguiente, ascendimos a la cima del volcán Acatenango.</p>
+        <p><strong>La marche était difficile à cause du sable volcanique, mais la vue en valait la peine.</strong></p>
+        <p class="translation">La caminata fue difícil debido a la arena volcánica, pero la vista valió la pena.</p>
+        <p><strong>La descente a été gratifiante, nous donnant un sentiment d'accomplissement.</strong></p>
+        <p class="translation">El descenso fue gratificante, dándonos una sensación de logro.</p>
+        <p><strong>Cette expérience m'a profondément marqué.</strong></p>
+        <p class="translation">Esta experiencia me marcó profundamente.</p>
+        <p><strong>Je pense que c'est une aventure que tout le monde devrait vivre au moins une fois dans sa vie.</strong></p>
+        <p class="translation">Creo que es una aventura que todo el mundo debería vivir al menos una vez en la vida.</p>
+        <p><strong>Quant à mon prochain voyage, je n'en suis pas encore sûr.</strong></p>
+        <p class="translation">En cuanto a mi próximo viaje, aún no estoy seguro.</p>
+        <p><strong>Je vais obtenir mon diplôme d'avocat à la fin septembre, et j'espère célébrer cela avec un voyage intéressant.</strong></p>
+        <p class="translation">Voy a obtener mi título de abogado a finales de septiembre, y espero celebrar eso con un viaje interesante.</p>
+        <p><strong>J'ai hâte de découvrir où ma prochaine aventure me mènera !</strong></p>
+        <p class="translation">¡Estoy ansioso por descubrir a dónde me llevará mi próxima aventura!</p>
+    </div>
+
+    <script>
+        const textContainer = document.getElementById('text-container');
+        const paragraphs = textContainer.querySelectorAll('p:not(.translation)');
+        const playAllButton = document.getElementById('play-all-button');
+        const stopButton = document.getElementById('stop-button');
+        const utterance = new SpeechSynthesisUtterance();
+        utterance.lang = 'fr-FR'; // Set the language to French
+
+        let isPlayingAll = false;
+
+        function speakSentence(sentence, callback) {
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+            }
+            utterance.text = sentence;
+            utterance.onend = callback || function() {};
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function playAll() {
+            let index = 0;
+            isPlayingAll = true;
+
+            function next() {
+                if (!isPlayingAll || index >= paragraphs.length) {
+                    isPlayingAll = false;
+                    return;
+                }
+                speakSentence(paragraphs[index].textContent, () => {
+                    setTimeout(next, 3000); // 3-second pause between sentences
+                });
+                index++;
+            }
+
+            next();
+        }
+
+        playAllButton.addEventListener('click', () => {
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+            }
+            playAll();
+        });
+
+        stopButton.addEventListener('click', () => {
+            isPlayingAll = false;
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+            }
+        });
+
+        paragraphs.forEach(paragraph => {
+            paragraph.addEventListener('click', () => {
+                isPlayingAll = false;
+                if (window.speechSynthesis.speaking) {
+                    window.speechSynthesis.cancel();
+                }
+                speakSentence(paragraph.textContent);
+            });
+        });
+    </script>
+</body>
+</html>
